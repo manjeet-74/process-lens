@@ -25,22 +25,35 @@ const ROW_H = 110;
  * a start activity; relaxation is bounded by node count so rework cycles can't loop forever.
  */
 export function layoutDfg(dfg: Dfg): LayoutResult {
-  const rank = new Map<string, number>();
-  for (const n of dfg.nodes) rank.set(n.activity, 0);
-  for (const s of dfg.startActivities) rank.set(s.activity, 0);
+  // Shortest-path (BFS) layering from the start activities, ignoring self-loops.
+  // BFS depth avoids the rank inflation that rework/back-edges cause in longest-path relaxation.
+  const adj = new Map<string, string[]>();
+  for (const e of dfg.edges) {
+    if (e.from === e.to) continue;
+    if (!adj.has(e.from)) adj.set(e.from, []);
+    adj.get(e.from)!.push(e.to);
+  }
 
-  const n = dfg.nodes.length;
-  for (let iter = 0; iter < n; iter++) {
-    let changed = false;
-    for (const e of dfg.edges) {
-      const next = (rank.get(e.from) ?? 0) + 1;
-      if (next > (rank.get(e.to) ?? 0) && next < n) {
-        rank.set(e.to, next);
-        changed = true;
+  const rank = new Map<string, number>();
+  const queue: string[] = [];
+  const seeds = dfg.startActivities.length ? dfg.startActivities.map((s) => s.activity) : dfg.nodes.slice(0, 1).map((n) => n.activity);
+  for (const s of seeds) {
+    if (!rank.has(s)) {
+      rank.set(s, 0);
+      queue.push(s);
+    }
+  }
+  for (let head = 0; head < queue.length; head++) {
+    const cur = queue[head];
+    const d = rank.get(cur)!;
+    for (const nx of adj.get(cur) ?? []) {
+      if (!rank.has(nx)) {
+        rank.set(nx, d + 1);
+        queue.push(nx);
       }
     }
-    if (!changed) break;
   }
+  for (const node of dfg.nodes) if (!rank.has(node.activity)) rank.set(node.activity, 0);
 
   // group by rank, order within rank by frequency desc
   const byRank = new Map<number, string[]>();

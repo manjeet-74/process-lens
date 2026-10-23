@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import {
   ReactFlow,
   Background,
-  Controls,
   MarkerType,
   type Node,
   type Edge,
@@ -91,7 +90,6 @@ export function ProcessMap({ dfg, referencePath, bottleneck }: Props) {
         elementsSelectable={false}
       >
         <Background color="#1c1c1c" gap={20} />
-        <Controls showInteractive={false} />
       </ReactFlow>
     </div>
   );
