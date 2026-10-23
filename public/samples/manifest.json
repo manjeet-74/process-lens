@@ -1,0 +1,17 @@
+[
+  {
+    "file": "order-to-cash.csv",
+    "name": "Order to Cash",
+    "cases": 220
+  },
+  {
+    "file": "procure-to-pay.csv",
+    "name": "Procure to Pay",
+    "cases": 180
+  },
+  {
+    "file": "insurance-claim.csv",
+    "name": "Insurance Claim",
+    "cases": 160
+  }
+]
