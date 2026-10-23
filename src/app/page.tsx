@@ -11,6 +11,9 @@ const S = {
   ink:         "#ffffff",
   inkMuted:    "#999999",
   accentBlue:  "#0099ff",
+  gradViolet:  "#6a4cf5",
+  gradMagenta: "#d44df0",
+  gradOrange:  "#ff7a3d",
   success:     "#22c55e",
 };
 
@@ -30,7 +33,6 @@ export default function HomePage() {
       };
     })
     .sort((a, b) => b.score - a.score);
-
 
   return (
     <div style={{ background: S.canvas, minHeight: "100vh" }}>
@@ -104,7 +106,7 @@ export default function HomePage() {
           marginBottom: "36px",
         }}>
           Ingests enterprise event logs, computes process-mining metrics, and ranks each
-          process 0–100 for agent-automation suitability. Inspired by ARIS Process Lens.
+          process 0–100 for agent-automation suitability — inspired by ARIS Process Lens.
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <a href="#rankings" style={{
@@ -124,28 +126,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STAT CARDS ── */}
+      {/* ── SPOTLIGHT CARD ROW ── */}
       <section style={{ padding: "0 30px 80px", maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1px", background: S.hairline, border: `1px solid ${S.hairline}`, borderRadius: "20px", overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }}>
 
-          <div style={{ background: S.surface1, padding: "32px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 500, color: S.inkMuted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Approach</p>
-            <p style={{ fontSize: "20px", fontWeight: 500, lineHeight: 1.25, letterSpacing: "-0.6px", color: S.ink }}>
+          {/* Gradient card — Violet */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradViolet}, #4338ca)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Approach</p>
+            <p style={{ fontSize: "22px", fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.8px", color: S.ink }}>
               Process context is the missing layer of enterprise AI.
             </p>
           </div>
 
-          <div style={{ background: S.surface1, padding: "32px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 500, color: S.inkMuted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Signal</p>
-            <p style={{ fontSize: "20px", fontWeight: 500, lineHeight: 1.25, letterSpacing: "-0.6px", color: S.ink }}>
+          {/* Gradient card — Magenta */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradMagenta}, #a21caf)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Signal</p>
+            <p style={{ fontSize: "22px", fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.8px", color: S.ink }}>
               82% of Global 2000 execs say process context is required for AI agents.
             </p>
           </div>
 
-          <div style={{ background: S.surface1, padding: "32px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 500, color: S.inkMuted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Dataset</p>
+          {/* Stat card — Orange */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradOrange}, #c2410c)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Dataset</p>
             <p style={{ fontSize: "52px", fontWeight: 500, lineHeight: 0.95, letterSpacing: "-2px", color: S.ink, marginBottom: "6px" }}>400</p>
-            <p style={{ fontSize: "14px", color: S.inkMuted, letterSpacing: "-0.14px" }}>synthetic cases across 5 enterprise process families</p>
+            <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.7)", letterSpacing: "-0.15px" }}>synthetic cases across 5 enterprise process families</p>
           </div>
 
         </div>
@@ -205,7 +219,6 @@ export default function HomePage() {
                 const isTop = p.score >= 75;
                 const isMid = p.score >= 55;
                 const scoreColor = isTop ? S.success : isMid ? "#fbbf24" : "#ef4444";
-
                 return (
                   <tr key={p.id} style={{
                     borderBottom: `1px solid ${S.hairline}`,
