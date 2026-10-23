@@ -3,175 +3,314 @@ import fixture from "@/lib/data/fixture.json";
 import { analyzeProcess } from "@/lib/engine";
 import type { ProcessLog } from "@/lib/data/types";
 
+const S = {
+  canvas:      "#090909",
+  surface1:    "#141414",
+  surface2:    "#1c1c1c",
+  hairline:    "#262626",
+  ink:         "#ffffff",
+  inkMuted:    "#999999",
+  accentBlue:  "#0099ff",
+  gradViolet:  "#6a4cf5",
+  gradMagenta: "#d44df0",
+  gradOrange:  "#ff7a3d",
+  success:     "#22c55e",
+};
+
 export default function HomePage() {
   const ranked = (fixture as ProcessLog[])
     .map((log) => {
       const a = analyzeProcess(log);
       return {
-        id: a.id,
-        name: a.name,
+        id: a.id, name: a.name,
         score: a.score.score,
         caseCount: a.caseCount,
         variantCount: a.variantCount,
         reworkRate: a.reworkRate,
         exceptionRate: a.exceptionRate,
+        topVariantCoverage: a.topVariantCoverage,
         bottleneck: a.bottleneck.activity,
       };
     })
     .sort((a, b) => b.score - a.score);
 
+  const spotlightColors = [S.gradViolet, S.gradMagenta, S.gradOrange];
+
   return (
-    <main style={{ minHeight: "100vh", background: "#0f0f1a", padding: "0 16px 60px" }}>
+    <div style={{ background: S.canvas, minHeight: "100vh" }}>
 
-      {/* Hero */}
-      <div style={{
-        background: "linear-gradient(135deg, #0f0f1a 0%, #1e1b4b 50%, #0f172a 100%)",
-        borderBottom: "1px solid #312e81",
-        padding: "60px 24px 48px",
-        textAlign: "center",
-        marginBottom: "40px",
+      {/* ── NAV ── */}
+      <nav style={{
+        background: S.canvas,
+        borderBottom: `1px solid ${S.hairline}`,
+        height: "56px",
+        display: "flex",
+        alignItems: "center",
+        padding: "0 30px",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
       }}>
-        <div style={{
-          display: "inline-block",
-          background: "rgba(99,102,241,0.15)",
-          border: "1px solid rgba(99,102,241,0.4)",
-          color: "#a5b4fc",
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "1.5px",
-          textTransform: "uppercase",
-          padding: "6px 16px",
-          borderRadius: "999px",
-          marginBottom: "20px",
-        }}>
-          Portfolio Project · ARIS Application
-        </div>
-        <h1 style={{
-          fontSize: "clamp(36px, 6vw, 56px)",
-          fontWeight: 800,
-          letterSpacing: "-1.5px",
-          background: "linear-gradient(135deg, #fff 30%, #a5b4fc 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-          margin: "0 0 12px",
-          lineHeight: 1.1,
-        }}>
+        <span style={{ fontWeight: 600, fontSize: "14px", letterSpacing: "-0.14px", color: S.ink, flex: 1 }}>
           Process Lens
-        </h1>
-        <p style={{ color: "#94a3b8", fontSize: "18px", margin: "0 auto", maxWidth: "520px" }}>
-          AI-readiness scoring and ranking for enterprise business processes — inspired by ARIS Process Lens
-        </p>
-        <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginTop: "28px" }}>
-          {["5 Processes", "400 Cases", "17 Tests Passing", "TypeScript"].map(t => (
-            <span key={t} style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#cbd5e1",
-              fontSize: "13px",
-              padding: "5px 14px",
-              borderRadius: "999px",
-            }}>{t}</span>
-          ))}
+        </span>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <a href="https://github.com/manjeet-74/process-lens"
+            style={{ color: S.inkMuted, fontSize: "14px", letterSpacing: "-0.14px" }}>
+            GitHub
+          </a>
+          <a href="/api/processes"
+            style={{
+              background: S.ink,
+              color: S.canvas,
+              fontSize: "14px",
+              fontWeight: 500,
+              letterSpacing: "-0.14px",
+              padding: "8px 15px",
+              borderRadius: "100px",
+              textDecoration: "none",
+            }}>
+            API
+          </a>
         </div>
-      </div>
+      </nav>
 
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-
-        {/* Disclaimer */}
-        <div style={{
-          background: "rgba(251,191,36,0.08)",
-          border: "1px solid rgba(251,191,36,0.25)",
-          borderRadius: "10px",
-          padding: "12px 18px",
-          color: "#fbbf24",
+      {/* ── HERO ── */}
+      <section style={{ padding: "96px 30px 80px", maxWidth: "1200px", margin: "0 auto" }}>
+        <p style={{
           fontSize: "13px",
-          marginBottom: "32px",
+          fontWeight: 500,
+          color: S.inkMuted,
+          marginBottom: "24px",
+          textTransform: "uppercase",
+          letterSpacing: "1px",
         }}>
-          ⚠️ <strong>Synthetic data — demo only.</strong> All process logs are procedurally generated. No real ARIS or client data is used.
+          ARIS Application · Portfolio Project
+        </p>
+        <h1 style={{
+          fontSize: "clamp(52px, 8vw, 85px)",
+          fontWeight: 500,
+          lineHeight: 0.95,
+          letterSpacing: "-4.25px",
+          color: S.ink,
+          marginBottom: "28px",
+          maxWidth: "700px",
+        }}>
+          Score every process for AI readiness.
+        </h1>
+        <p style={{
+          fontSize: "18px",
+          fontWeight: 400,
+          lineHeight: 1.3,
+          letterSpacing: "-0.18px",
+          color: S.inkMuted,
+          maxWidth: "520px",
+          marginBottom: "36px",
+        }}>
+          Ingests enterprise event logs, computes process-mining metrics, and ranks each
+          process 0–100 for agent-automation suitability — inspired by ARIS Process Lens.
+        </p>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <a href="#rankings" style={{
+            background: S.ink, color: S.canvas,
+            fontSize: "14px", fontWeight: 500, letterSpacing: "-0.14px",
+            padding: "10px 20px", borderRadius: "100px", textDecoration: "none",
+          }}>
+            View Rankings ↓
+          </a>
+          <a href="/api/processes" style={{
+            background: S.surface1, color: S.ink,
+            fontSize: "14px", fontWeight: 500, letterSpacing: "-0.14px",
+            padding: "10px 20px", borderRadius: "100px", textDecoration: "none",
+          }}>
+            JSON API
+          </a>
         </div>
+      </section>
 
-        {/* Table card */}
-        <div style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "16px",
-          overflow: "hidden",
-        }}>
-          <div style={{ padding: "24px 28px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <h2 style={{ color: "#f1f5f9", fontSize: "20px", fontWeight: 700, margin: 0 }}>
-              AI-Readiness Rankings
-            </h2>
-            <p style={{ color: "#64748b", fontSize: "14px", margin: "4px 0 0" }}>
-              Processes ranked by agent-automation suitability. Click any process to see the full breakdown.
+      {/* ── SPOTLIGHT CARD ROW ── */}
+      <section style={{ padding: "0 30px 80px", maxWidth: "1200px", margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }}>
+
+          {/* Gradient card — Violet */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradViolet}, #4338ca)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Approach</p>
+            <p style={{ fontSize: "22px", fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.8px", color: S.ink }}>
+              Process context is the missing layer of enterprise AI.
             </p>
           </div>
 
+          {/* Gradient card — Magenta */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradMagenta}, #a21caf)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Signal</p>
+            <p style={{ fontSize: "22px", fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.8px", color: S.ink }}>
+              82% of Global 2000 execs say process context is required for AI agents.
+            </p>
+          </div>
+
+          {/* Stat card — Orange */}
+          <div style={{
+            background: `linear-gradient(135deg, ${S.gradOrange}, #c2410c)`,
+            borderRadius: "20px", padding: "32px",
+          }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Dataset</p>
+            <p style={{ fontSize: "52px", fontWeight: 500, lineHeight: 0.95, letterSpacing: "-2px", color: S.ink, marginBottom: "6px" }}>400</p>
+            <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.7)", letterSpacing: "-0.15px" }}>synthetic cases across 5 enterprise process families</p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── RANKINGS TABLE ── */}
+      <section id="rankings" style={{ padding: "0 30px 96px", maxWidth: "1200px", margin: "0 auto" }}>
+        <div style={{ marginBottom: "32px" }}>
+          <p style={{ fontSize: "13px", fontWeight: 500, color: S.inkMuted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Rankings</p>
+          <h2 style={{ fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 500, letterSpacing: "-2.5px", lineHeight: 1, color: S.ink }}>
+            AI-readiness by process
+          </h2>
+        </div>
+
+        {/* Disclaimer */}
+        <div style={{
+          background: S.surface1,
+          border: `1px solid ${S.hairline}`,
+          borderRadius: "10px",
+          padding: "12px 16px",
+          color: S.inkMuted,
+          fontSize: "13px",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}>
+          <span style={{ color: "#fbbf24" }}>⚠</span>
+          <span><strong style={{ color: S.ink }}>Synthetic data — demo only.</strong> All event logs are generated. No real ARIS or client data is used.</span>
+        </div>
+
+        <div style={{
+          background: S.surface1,
+          border: `1px solid ${S.hairline}`,
+          borderRadius: "20px",
+          overflow: "hidden",
+        }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "rgba(255,255,255,0.02)" }}>
-                {["#", "Process", "AI Score", "Cases", "Variants", "Rework %", "Exception %", "Bottleneck"].map((h, i) => (
+              <tr style={{ borderBottom: `1px solid ${S.hairline}` }}>
+                {["#", "Process", "AI Score", "Cases", "Variants", "Rework", "Exceptions", "Bottleneck"].map((h, i) => (
                   <th key={h} style={{
-                    padding: "12px 16px",
+                    padding: "14px 20px",
                     textAlign: i <= 1 ? "left" : i === 2 ? "center" : i === 7 ? "left" : "right",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    color: "#475569",
-                    borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    letterSpacing: "-0.12px",
+                    color: S.inkMuted,
                     whiteSpace: "nowrap",
+                    background: S.surface2,
                   }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {ranked.map((p, i) => {
-                const scoreColor = p.score >= 75 ? { bg: "rgba(22,163,74,0.15)", text: "#4ade80", border: "rgba(22,163,74,0.3)" }
-                  : p.score >= 55 ? { bg: "rgba(217,119,6,0.15)", text: "#fbbf24", border: "rgba(217,119,6,0.3)" }
-                  : { bg: "rgba(220,38,38,0.15)", text: "#f87171", border: "rgba(220,38,38,0.3)" };
+                const isTop = p.score >= 75;
+                const isMid = p.score >= 55;
+                const scoreColor = isTop ? S.success : isMid ? "#fbbf24" : "#ef4444";
+                const spotlightBg = i < 3 ? spotlightColors[i] : null;
+
                 return (
-                  <tr key={p.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                    <td style={{ padding: "16px", color: "#334155", fontFamily: "monospace", fontSize: "14px" }}>{i + 1}</td>
-                    <td style={{ padding: "16px" }}>
+                  <tr key={p.id} style={{
+                    borderBottom: `1px solid ${S.hairline}`,
+                    background: "transparent",
+                    transition: "background 0.15s",
+                  }}>
+                    <td style={{ padding: "18px 20px", color: S.inkMuted, fontSize: "13px", fontVariantNumeric: "tabular-nums" }}>{i + 1}</td>
+                    <td style={{ padding: "18px 20px" }}>
                       <Link href={`/process/${p.id}`} style={{
-                        color: "#818cf8",
-                        textDecoration: "none",
-                        fontWeight: 600,
+                        color: S.ink,
                         fontSize: "15px",
+                        fontWeight: 500,
+                        letterSpacing: "-0.15px",
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
                       }}>
+                        {spotlightBg && (
+                          <span style={{
+                            display: "inline-block",
+                            width: "8px",
+                            height: "8px",
+                            borderRadius: "50%",
+                            background: spotlightBg,
+                            flexShrink: 0,
+                          }} />
+                        )}
                         {p.name}
                       </Link>
                     </td>
-                    <td style={{ padding: "16px", textAlign: "center" }}>
+                    <td style={{ padding: "18px 20px", textAlign: "center" }}>
                       <span style={{
                         display: "inline-block",
-                        background: scoreColor.bg,
-                        color: scoreColor.text,
-                        border: `1px solid ${scoreColor.border}`,
-                        borderRadius: "999px",
-                        padding: "3px 12px",
-                        fontSize: "13px",
-                        fontWeight: 700,
+                        color: scoreColor,
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        letterSpacing: "-0.14px",
+                        background: `${scoreColor}18`,
+                        border: `1px solid ${scoreColor}40`,
+                        borderRadius: "100px",
+                        padding: "4px 12px",
+                        fontVariantNumeric: "tabular-nums",
                       }}>{p.score}</span>
                     </td>
-                    <td style={{ padding: "16px", textAlign: "right", color: "#94a3b8", fontSize: "14px" }}>{p.caseCount}</td>
-                    <td style={{ padding: "16px", textAlign: "right", color: "#94a3b8", fontSize: "14px" }}>{p.variantCount}</td>
-                    <td style={{ padding: "16px", textAlign: "right", color: "#94a3b8", fontSize: "14px" }}>{(p.reworkRate * 100).toFixed(1)}%</td>
-                    <td style={{ padding: "16px", textAlign: "right", color: "#94a3b8", fontSize: "14px" }}>{(p.exceptionRate * 100).toFixed(1)}%</td>
-                    <td style={{ padding: "16px", color: "#64748b", fontSize: "13px" }}>{p.bottleneck}</td>
+                    <td style={{ padding: "18px 20px", textAlign: "right", color: S.inkMuted, fontSize: "14px", fontVariantNumeric: "tabular-nums" }}>{p.caseCount}</td>
+                    <td style={{ padding: "18px 20px", textAlign: "right", color: S.inkMuted, fontSize: "14px", fontVariantNumeric: "tabular-nums" }}>{p.variantCount}</td>
+                    <td style={{ padding: "18px 20px", textAlign: "right", color: S.inkMuted, fontSize: "14px", fontVariantNumeric: "tabular-nums" }}>{(p.reworkRate * 100).toFixed(1)}%</td>
+                    <td style={{ padding: "18px 20px", textAlign: "right", color: S.inkMuted, fontSize: "14px", fontVariantNumeric: "tabular-nums" }}>{(p.exceptionRate * 100).toFixed(1)}%</td>
+                    <td style={{ padding: "18px 20px", color: S.inkMuted, fontSize: "13px", letterSpacing: "-0.13px" }}>{p.bottleneck}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+      </section>
 
-        {/* Footer note */}
-        <p style={{ textAlign: "center", color: "#1e293b", fontSize: "13px", marginTop: "32px" }}>
-          Built by <strong style={{ color: "#475569" }}>Manjeet Roy</strong> · MS Ramaiah Institute of Technology · github.com/manjeet-74
-        </p>
-      </div>
-    </main>
+      {/* ── FOOTER ── */}
+      <footer style={{
+        background: S.canvas,
+        borderTop: `1px solid ${S.hairline}`,
+        padding: "48px 30px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "12px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}>
+        <div>
+          <p style={{ fontSize: "13px", fontWeight: 500, color: S.inkMuted, letterSpacing: "-0.13px" }}>
+            Built by <a href="https://linkedin.com/in/manjeet70" style={{ color: S.ink }}>Manjeet Roy</a> · MS Ramaiah Institute of Technology
+          </p>
+          <p style={{ fontSize: "12px", color: "#333", letterSpacing: "-0.12px", marginTop: "4px" }}>
+            Synthetic data — not affiliated with ARIS or SAG Aris GmbH.
+          </p>
+        </div>
+        <a href="https://github.com/manjeet-74/process-lens" style={{
+          background: S.surface1, color: S.ink,
+          fontSize: "14px", fontWeight: 500, letterSpacing: "-0.14px",
+          padding: "10px 20px", borderRadius: "100px", textDecoration: "none",
+          border: `1px solid ${S.hairline}`,
+        }}>
+          View on GitHub ↗
+        </a>
+      </footer>
+    </div>
   );
 }

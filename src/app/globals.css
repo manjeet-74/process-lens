@@ -1,22 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #0f0f1a;
-  --foreground: #e2e8f0;
+  --canvas:       #090909;
+  --surface-1:    #141414;
+  --surface-2:    #1c1c1c;
+  --hairline:     #262626;
+  --hairline-soft:#1a1a1a;
+  --ink:          #ffffff;
+  --ink-muted:    #999999;
+  --accent-blue:  #0099ff;
+  --grad-violet:  #6a4cf5;
+  --grad-magenta: #d44df0;
+  --grad-orange:  #ff7a3d;
+  --grad-coral:   #ff5577;
+  --success:      #22c55e;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv01','cv05','cv09','cv11','ss03','ss07';
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+a { color: var(--accent-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
