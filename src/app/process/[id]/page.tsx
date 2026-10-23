@@ -6,6 +6,8 @@ import type { ProcessLog } from "@/lib/data/types";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { MetricChart } from "@/components/MetricChart";
 
+export const instant = false;
+
 export function generateStaticParams() {
   return (fixture as ProcessLog[]).map((p) => ({ id: p.id }));
 }
