@@ -6,11 +6,12 @@ Use this sheet to connect Process Lens to ARIS's exact language and product visi
 
 ## Core narrative (30-second pitch)
 
-"I built Process Lens as a working implementation of what ARIS calls 'scoring processes for AI
-readiness.' The product scores five enterprise processes — Order-to-Cash, Procure-to-Pay, Invoice
-Approval, Customer Onboarding, Expense Reimbursement — on five weighted factors: standardization,
-stability, cleanliness, volume, and speed. Each score comes with a per-factor breakdown so it's
-fully explainable, which is exactly ARIS's governance-first position on agentic AI."
+"I built Process Lens as a working process-mining tool around ARIS's 'process context for AI'
+thesis. You upload an event log — any CSV — and it discovers the process as a Directly-Follows
+Graph, checks conformance to the discovered happy path, finds the bottleneck, and scores the
+process 0–100 for AI-agent readiness. Then an LLM reads those computed metrics and writes a
+grounded brief: what an agent must know before automating the process, and exactly where it would
+break. Every number is explainable, which is ARIS's governance-first position on agentic AI."
 
 ---
 
@@ -18,13 +19,13 @@ fully explainable, which is exactly ARIS's governance-first position on agentic 
 
 | What you built | ARIS term | Where to use it |
 |---|---|---|
-| Event log (caseId, activity, timestamp, resource) | Process event / task mining data | "I worked with the same event model ARIS Process Mining ingests." |
-| Variant analysis | Process Mining → variant analysis | "My engine computes the same variant coverage that ARIS surfaces as a conformance signal." |
-| AI-readiness score | **Process Lens** | "This is the same output ARIS Process Lens produces — a ranked list of processes by agent suitability." |
-| Explainable factor breakdown | ARIS's 'governed AI' / transparency principle | "The score isn't a black box — every factor is visible, which reflects ARIS's position that AI agents need governed process context." |
-| Bottleneck detection | Process intelligence → optimization | "Bottleneck identification is the first signal you need before deciding where an agent adds value." |
-| Rework + exception rates | Conformance checking / deviation detection | "Rework and exception rates map to conformance deviations — processes with high rates score lower because agents struggle with unpredictable flows." |
-| The whole dashboard | Digital Twin of the Organization — Create → Discover loop | "The Create step is the designed process model; the Discover step is what my mining engine exposes — the gap between design and reality." |
+| CSV → normalized event log (case, activity, timestamp, resource) | Process event / task-mining data | "I ingest the same event model ARIS Process Mining works with, with column auto-detection." |
+| Directly-Follows Graph + interactive process map | Process discovery / process model | "I discover the process model from the log and render it the way ARIS renders a process map." |
+| Sequence-alignment conformance to the discovered happy path | Conformance checking | "I measure trace fitness against the discovered happy path and show exactly which activities are inserted or skipped." |
+| AI-readiness score + explainable factors | **Process context for AI** / governed AI | "The score isn't a black box — every factor is visible, which reflects ARIS's position that AI agents need governed process context." |
+| Bottleneck + cycle-time analysis | Process intelligence → optimization | "Bottleneck identification is the first signal you need before deciding where an agent adds value." |
+| LLM brief grounded in the computed metrics | Process context handed to an agent | "This is the actual thesis — I feed the mined metrics to an LLM so it reasons about the process with real context, not guesses." |
+| Upload any log → discover → assess | Digital Twin of the Organization — Create → Discover loop | "The Discover step is what my mining engine exposes: the gap between the designed process and reality." |
 
 ---
 
@@ -52,32 +53,43 @@ fully explainable, which is exactly ARIS's governance-first position on agentic 
 
 ## Likely interview questions and how to answer
 
-**"Why did you pick these five metrics?"**  
-> "They map directly to the signals that make a process automatable: standardization (an agent
-> needs a predictable path), stability (rework means the agent encounters unexpected states),
-> cleanliness (exceptions require human judgment), volume (ROI only materializes at scale), and
-> speed (faster processes have shorter feedback loops for the agent). ARIS's own Process Lens
-> talks about 'hundreds of processes evaluated in hours' — that's exactly what a weighted scoring
-> model enables."
+**"Why these six factors?"**  
+> "They map to the signals that make a process automatable: standardization (an agent needs a
+> predictable path), conformance fitness (how closely cases follow that path), stability (rework
+> means the agent hits unexpected states), cleanliness (deviations require human judgment), volume
+> (ROI only materializes at scale), and speed (shorter cycles mean tighter feedback loops). Each
+> is normalized 0–1 and weighted, and I return the contribution of each so the score is auditable."
 
 **"How is this different from a BI dashboard?"**  
-> "The metrics are process-mining metrics, not just aggregates. Variant analysis, rework
-> detection, cycle-time distribution, and bottleneck identification all require reasoning about
-> the order of events within a case — you can't compute them with a GROUP BY. The engine
-> processes the event sequence per case before any aggregation, which is the core of process
-> mining."
+> "The core is process discovery and conformance, not aggregation. I build a Directly-Follows Graph
+> from the event order within each case, then run sequence alignment against the discovered happy
+> path to find where cases deviate. None of that is a GROUP BY — it requires reasoning about the
+> order of events per case, which is the heart of process mining."
 
-**"The data is synthetic — why should we care?"**  
-> "The synthetic data was designed to produce meaningful results: each process family has
-> deliberately different rework rates, exception rates, and variant distributions, so the ranking
-> is non-trivial. The architecture — event log → metrics engine → scoring model → API → dashboard
-> — is identical to a production system. Swapping `fixture.json` for a real ARIS event export
-> would require no code changes."
+**"How does conformance checking actually work here?"**  
+> "I take the most frequent variant as the discovered happy path, then compute each trace's fitness
+> as a normalized Levenshtein distance against it. Cases with fitness 1 conform exactly; for the
+> rest I attribute deviations as inserted activities (present but not in the happy path, e.g. a
+> 'Cancel Order') or skipped activities (in the happy path but missing). It's an approximation of
+> alignment-based conformance, but it's explainable and fast."
+
+**"How do you keep the LLM from hallucinating?"**  
+> "The model never sees the raw log — it only sees the computed metrics, and the prompt tells it to
+> use only those numbers. The output is a fixed four-section brief. The call is timeout-bounded, and
+> if the model is unavailable it falls back to a deterministic narrative generated from the same
+> metrics, so the feature never breaks and never invents data."
+
+**"The samples are synthetic — why should we care?"**  
+> "The samples are only defaults — you can upload any real event-log CSV and it mines it live. The
+> samples are deliberately differentiated (different rework, deviation, and bottleneck profiles) so
+> they score distinctly, which proves the pipeline discriminates. The path from upload → discover →
+> conformance → score → brief is identical whether the log is synthetic or a real ARIS export."
 
 **"What would you add next?"**  
-> "An MCP server layer on top of the analysis engine, so an LLM agent could query 'which
-> processes are ready for automation?' at runtime before acting — which is exactly what ARIS
-> launched on October 26th. That's idea #1 from my research: a Process Context MCP server."
+> "An MCP server exposing this analysis, so an agent could ask 'is this process ready to automate,
+> and what should I watch for?' at runtime before acting — the LLM brief I already generate, but
+> served over MCP as governed process context. After that, object-centric mining (OCEL 2.0) so one
+> event can touch an Order, an Invoice, and an Item instead of a single case id."
 
 ---
 

@@ -1,51 +1,61 @@
 # Process Lens
 
-> **AI-readiness scorer and ranking dashboard for enterprise business processes**  
-> Inspired by [ARIS Process Lens](https://aris.com) — the product that scores processes for agentic AI suitability.
+> **A process-mining workbench that scores any event log for AI-agent readiness.**
+> Inspired by [ARIS](https://aris.com) process intelligence and its "process context for AI" thesis.
 
 ---
 
-> **SYNTHETIC DATA — DEMO ONLY.**  
-> All process event logs in this project are procedurally generated. No real ARIS data, client data,  
-> or proprietary process models are used. This is an independent portfolio project.
+> **SYNTHETIC SAMPLES — DEMO ONLY.**
+> The bundled sample logs are procedurally generated. No real ARIS data, client data, or
+> proprietary process models are used. This is an independent portfolio project, not affiliated
+> with ARIS or SAG Aris GmbH. Upload your own CSV to mine real data.
 
 ---
 
 ## What it does
 
-Process Lens ingests structured **event logs** (who did what, when, in which case) for five common
-enterprise process families, computes process-mining metrics, and **scores each process 0–100 for
-AI-agent readiness** — surfacing where automation delivers the most value.
+Upload an event log (or pick a sample) and Process Lens runs a real process-mining pipeline in the
+browser/server and returns:
 
-**Processes analysed:**
-| Process | Domain |
-|---|---|
-| Order to Cash | Finance / Supply Chain |
-| Procure to Pay | Procurement |
-| Invoice Approval | Finance |
-| Customer Onboarding | Operations |
-| Expense Reimbursement | HR / Finance |
+- **Process discovery** — builds a **Directly-Follows Graph** from the log and renders it as an
+  interactive process map (node size = case frequency, edge thickness = transition frequency).
+- **Conformance checking** — discovers the happy path (most frequent variant) and measures, via
+  sequence alignment, what fraction of cases conform and exactly where they deviate (inserted vs.
+  skipped activities).
+- **Performance analysis** — median/average/p95 cycle time, the bottleneck activity (longest wait
+  to start), and the slowest transitions.
+- **Variant analysis** — distinct execution paths and their coverage.
+- **AI-readiness score (0–100)** — a transparent weighted score, grounded in the metrics above.
+- **AI-readiness brief** — an LLM (Google Gemini) reads the *computed metrics* and writes a
+  grounded brief: what an AI agent must know about the process and where it would fail. Falls back
+  to a deterministic local narrative when the model is unavailable.
 
-**Metrics computed per process:**
-- **Variants** — distinct execution paths and their frequency
-- **Top-variant coverage** — % of cases following the most common path
-- **Rework rate** — % of cases with repeated activities
-- **Exception rate** — % of cases containing rejection/rollback events
-- **Cycle time** — average and median case duration
-- **Bottleneck** — activity with the largest average wait before it
-
-**AI-readiness score (0–100):**
+### AI-readiness score
 
 | Factor | What it measures | Weight |
 |---|---|---|
-| Standardization | Top-variant coverage | 30% |
-| Stability | 1 − rework rate | 25% |
-| Cleanliness | 1 − exception rate | 20% |
-| Volume | Log-normalized case count | 15% |
-| Speed | Normalized inverse median cycle time | 10% |
+| Standardization | Top-variant (happy-path) coverage | 25% |
+| Conformance | Average trace fitness to the happy path | 25% |
+| Stability | 1 − rework rate | 20% |
+| Cleanliness | 1 − deviation rate | 15% |
+| Volume | Log-normalized case count | 10% |
+| Speed | Normalized inverse median cycle time | 5% |
 
-Each factor is normalized 0–1 and returned with its contribution, making the score **fully
-explainable** — mirroring ARIS's governance-first approach to AI deployment.
+Each factor is normalized 0–1 and returned with its contribution, so the score is **fully
+explainable** — mirroring ARIS's governance-first approach.
+
+---
+
+## Why these features map to ARIS
+
+| This project | ARIS concept |
+|---|---|
+| CSV → normalized event log (case, activity, timestamp, resource) | Process event log / task-mining feed |
+| Directly-Follows Graph + process map | Process discovery / process model |
+| Sequence-alignment conformance to the happy path | Conformance checking |
+| Bottleneck + cycle-time analysis | Process performance / optimization |
+| AI-readiness score + "what an agent must know" brief | **Process context for AI agents** |
+| Explainable factor breakdown | Governance-first, nothing opaque |
 
 ---
 
@@ -55,82 +65,74 @@ explainable** — mirroring ARIS's governance-first approach to AI deployment.
 process-lens/
 ├─ src/
 │  ├─ app/
-│  │  ├─ page.tsx                    # Ranking dashboard (home)
-│  │  ├─ process/[id]/page.tsx       # Per-process drill-down
+│  │  ├─ page.tsx                     # Workbench UI (client): upload/sample → map + panels + brief
 │  │  └─ api/
-│  │     ├─ processes/route.ts       # GET /api/processes  → ranked list
-│  │     └─ processes/[id]/route.ts  # GET /api/processes/:id → detail + factors
+│  │     ├─ analyze/route.ts          # POST: CSV → full Analysis JSON
+│  │     └─ insights/route.ts         # POST: Analysis → Gemini brief (+ local fallback)
 │  ├─ lib/
-│  │  ├─ data/
-│  │  │  ├─ types.ts        # Zod schemas: Event, ProcessLog
-│  │  │  ├─ generate.ts     # Synthetic event-log generator (seeded RNG)
-│  │  │  └─ fixture.json    # Pre-generated log (committed; regenerate with npm run seed)
-│  │  └─ engine/
-│  │     ├─ metrics.ts      # Pure functions: variants, rework, cycleTime, bottleneck…
-│  │     ├─ score.ts        # Weighted AI-readiness score with factor breakdown
-│  │     └─ index.ts        # analyzeProcess(log) → ProcessAnalysis
+│  │  ├─ mining/                      # Pure, framework-free process-mining engine
+│  │  │  ├─ types.ts                  # Zod schemas + domain types
+│  │  │  ├─ parse.ts                  # CSV parsing + column auto-detection (Papa Parse)
+│  │  │  ├─ traces.ts                 # Case grouping + stats helpers
+│  │  │  ├─ dfg.ts                    # Directly-Follows Graph discovery
+│  │  │  ├─ variants.ts               # Variant + rework analysis
+│  │  │  ├─ conformance.ts            # Sequence-alignment fitness + deviations
+│  │  │  ├─ performance.ts            # Cycle time + bottleneck
+│  │  │  ├─ score.ts                  # Weighted AI-readiness score
+│  │  │  ├─ layout.ts                 # BFS layering for the process map
+│  │  │  └─ analyze.ts                # Orchestrator: EventLog → Analysis
+│  │  └─ ai/
+│  │     ├─ gemini.ts                 # Gemini REST client (timeout + retry)
+│  │     └─ insights.ts               # Prompt builder + deterministic fallback
 │  └─ components/
-│     ├─ ScoreBadge.tsx     # Color-coded score pill
-│     ├─ RankingTable.tsx
-│     └─ MetricChart.tsx    # Recharts bar chart (client component)
-├─ src/lib/engine/*.test.ts  # Vitest unit tests (17 tests)
-└─ scripts/seed.ts           # Regenerates fixture.json
+│     ├─ ProcessMap.tsx               # React Flow process graph (client)
+│     └─ Markdown.tsx                 # Minimal Markdown renderer for the brief
+├─ src/lib/mining/mining.test.ts      # Vitest unit tests (12 tests, known-answer logs)
+├─ scripts/gen-samples.ts             # Seeded sample-log generator
+└─ public/samples/                    # order-to-cash, procure-to-pay, insurance-claim CSVs
 ```
-
-**Data flow:**
-```
-scripts/seed.ts
-  → generate.ts (seeded RNG, 5 × 80 cases with injected rework/exceptions/variance)
-  → fixture.json (committed)
-      → engine/metrics.ts (pure TS, no deps)
-      → engine/score.ts   (weighted formula)
-          → API routes     (Next.js App Router)
-          → UI pages       (server components + Recharts client chart)
-```
-
----
-
-## How this maps to ARIS
-
-| This project | ARIS product / concept |
-|---|---|
-| Event log (caseId, activity, timestamp, resource) | Process event log / task mining feed |
-| `variants()` + conformance checks | Process Mining → variant analysis |
-| AI-readiness score per process | **Process Lens** — scores hundreds of processes for agent suitability |
-| Explainable factor breakdown | ARIS governance-first design — nothing opaque |
-| Bottleneck detection | Process intelligence → optimization signal |
-| Human-readable process ranking | Foundation for ARIS Flows / agent deployment decisions |
 
 ---
 
 ## Quick start
 
 ```bash
-# 1. Install
 npm install
-
-# 2. (Optional) Regenerate the synthetic event log
-npm run seed
-
-# 3. Run tests
-npm test
-
-# 4. Dev server
-npm run dev
-# → http://localhost:3000
-
-# 5. Production build
-npm run build
+npm test                 # engine unit tests (12)
+npm run seed             # (optional) regenerate sample CSVs in public/samples
+npm run dev              # http://localhost:3000
+npm run build            # type-check + production build
 ```
 
-**API endpoints (running dev server):**
+### AI brief (optional)
+
+The `/api/insights` route uses Google Gemini. Add a key to `.env.local` (gitignored):
+
 ```bash
-# Ranked list of all processes (sorted by AI score, descending)
-curl http://localhost:3000/api/processes
-
-# Full analysis + factor breakdown for one process
-curl http://localhost:3000/api/processes/order-to-cash
+GEMINI_API_KEY=your_key_here
+# optional overrides:
+# GEMINI_MODEL=gemini-3.8-flash
+# GEMINI_TIMEOUT_MS=18000
 ```
+
+Without a key (or when the model is busy) the brief gracefully falls back to a deterministic
+narrative computed from the metrics, so the app always works.
+
+### API
+
+```bash
+# Analyze a CSV event log
+curl -X POST http://localhost:3000/api/analyze \
+  -H 'Content-Type: text/csv' --data-binary @public/samples/order-to-cash.csv
+
+# Generate an AI-readiness brief from an analysis
+curl -X POST http://localhost:3000/api/insights \
+  -H 'Content-Type: application/json' -d '{"analysis": <analysis object>}'
+```
+
+**Upload format:** any CSV with a case id, an activity, and a timestamp column (header names are
+auto-detected: `case_id`/`case`/`case:concept:name`, `activity`/`concept:name`, `timestamp`/`time`,
+optional `resource`).
 
 ---
 
@@ -138,18 +140,19 @@ curl http://localhost:3000/api/processes/order-to-cash
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15, App Router, TypeScript |
-| Styling | Tailwind CSS |
-| Charts | Recharts |
+| Framework | Next.js 16, App Router, TypeScript |
+| Process map | React Flow (`@xyflow/react`) |
+| CSV parsing | Papa Parse |
+| AI brief | Google Gemini (REST) |
 | Validation | Zod |
 | Tests | Vitest |
 
-No database. All data is computed from the committed JSON fixture at build time.
+No database. The engine is pure TypeScript; logs are parsed and mined per request.
 
 ---
 
 ## Built by
 
-**Manjeet Roy** — Electronics & Telecommunication Engineering, MS Ramaiah Institute of Technology, Bengaluru (graduating 2027).  
-Stack: Flutter · React.js · Next.js · Node.js · NestJS · MongoDB · PostgreSQL · Redis  
-GitHub: [github.com/manjeet-74](https://github.com/manjeet-74) | LinkedIn: [linkedin.com/in/manjeet70](https://linkedin.com/in/manjeet70)
+**Manjeet Roy** — Electronics & Telecommunication Engineering, MS Ramaiah Institute of Technology,
+Bengaluru (graduating 2027).
+GitHub: [github.com/manjeet-74](https://github.com/manjeet-74) · LinkedIn: [linkedin.com/in/manjeet70](https://linkedin.com/in/manjeet70)
