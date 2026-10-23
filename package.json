@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/gen-samples.ts"
   },
   "dependencies": {
     "@xyflow/react": "^12.12.0",
