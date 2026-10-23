@@ -106,7 +106,7 @@ export default function HomePage() {
           marginBottom: "36px",
         }}>
           Ingests enterprise event logs, computes process-mining metrics, and ranks each
-          process 0–100 for agent-automation suitability — inspired by ARIS Process Lens.
+          process 0–100 for agent-automation suitability. Inspired by ARIS Process Lens.
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <a href="#rankings" style={{
@@ -188,7 +188,7 @@ export default function HomePage() {
           gap: "8px",
         }}>
           <span style={{ color: "#fbbf24" }}>⚠</span>
-          <span><strong style={{ color: S.ink }}>Synthetic data — demo only.</strong> All event logs are generated. No real ARIS or client data is used.</span>
+          <span><strong style={{ color: S.ink }}>Synthetic data, demo only.</strong> All event logs are generated. No real ARIS or client data is used.</span>
         </div>
 
         <div style={{
@@ -282,7 +282,7 @@ export default function HomePage() {
             Built by <a href="https://linkedin.com/in/manjeet70" style={{ color: S.ink }}>Manjeet Roy</a> · MS Ramaiah Institute of Technology
           </p>
           <p style={{ fontSize: "12px", color: "#333", letterSpacing: "-0.12px", marginTop: "4px" }}>
-            Synthetic data — not affiliated with ARIS or SAG Aris GmbH.
+            Synthetic data. Not affiliated with ARIS or SAG Aris GmbH.
           </p>
         </div>
         <a href="https://github.com/manjeet-74/process-lens" style={{

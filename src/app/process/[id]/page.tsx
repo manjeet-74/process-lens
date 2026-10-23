@@ -246,7 +246,7 @@ export default async function ProcessDetailPage({ params }: Props) {
 
         {/* Disclaimer */}
         <p style={{ fontSize: "12px", color: "#333", letterSpacing: "-0.12px", marginTop: "24px", textAlign: "center" }}>
-          ⚠ Synthetic data — demo only. No real ARIS or client data is used.
+          ⚠ Synthetic data, demo only. No real ARIS or client data is used.
         </p>
       </div>
     </div>
