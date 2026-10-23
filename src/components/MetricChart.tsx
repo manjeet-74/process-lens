@@ -21,7 +21,7 @@ interface MetricChartProps {
   factors: Factor[];
 }
 
-const COLORS = ["#6366f1", "#8b5cf6", "#a78bfa", "#818cf8", "#c4b5fd"];
+const COLORS = ["#ffffff", "#cccccc", "#aaaaaa", "#888888", "#666666"];
 
 export function MetricChart({ factors }: MetricChartProps) {
   const data = factors.map((f) => ({

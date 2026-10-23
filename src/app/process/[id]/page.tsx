@@ -23,18 +23,7 @@ const S = {
   ink:         "#ffffff",
   inkMuted:    "#999999",
   accentBlue:  "#0099ff",
-  gradViolet:  "#6a4cf5",
-  gradMagenta: "#d44df0",
-  gradOrange:  "#ff7a3d",
   success:     "#22c55e",
-};
-
-const PROCESS_GRADIENTS: Record<string, [string, string]> = {
-  "order-to-cash":          [S.gradViolet, "#4338ca"],
-  "procure-to-pay":         [S.gradMagenta, "#a21caf"],
-  "invoice-approval":       [S.gradOrange, "#c2410c"],
-  "customer-onboarding":    ["#22c55e", "#15803d"],
-  "expense-reimbursement":  ["#ff5577", "#be185d"],
 };
 
 export default async function ProcessDetailPage({ params }: Props) {
@@ -49,8 +38,6 @@ export default async function ProcessDetailPage({ params }: Props) {
   const isTop = a.score.score >= 75;
   const isMid = a.score.score >= 55;
   const scoreColor = isTop ? S.success : isMid ? "#fbbf24" : "#ef4444";
-
-  const [gradA, gradB] = PROCESS_GRADIENTS[id] ?? [S.gradViolet, "#4338ca"];
 
   const stats = [
     { label: "Cases",               value: String(a.caseCount) },
@@ -118,22 +105,23 @@ export default async function ProcessDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Mini gradient spotlight — score visualization */}
+          {/* Score card */}
           <div style={{
-            background: `linear-gradient(135deg, ${gradA}, ${gradB})`,
+            background: S.surface1,
+            border: `1px solid ${S.hairline}`,
             borderRadius: "20px",
             padding: "28px 32px",
             minWidth: "180px",
             textAlign: "center",
             flexShrink: 0,
           }}>
-            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "8px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: S.inkMuted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "8px" }}>
               AI Score
             </p>
-            <p style={{ fontSize: "64px", fontWeight: 500, lineHeight: 1, letterSpacing: "-3px", color: S.ink }}>
+            <p style={{ fontSize: "64px", fontWeight: 500, lineHeight: 1, letterSpacing: "-3px", color: scoreColor }}>
               {a.score.score}
             </p>
-            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", marginTop: "4px" }}>out of 100</p>
+            <p style={{ fontSize: "13px", color: S.inkMuted, marginTop: "4px" }}>out of 100</p>
           </div>
         </div>
       </section>
@@ -179,20 +167,17 @@ export default async function ProcessDetailPage({ params }: Props) {
               Explainable Score
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {a.score.factors.map((f, i) => {
-                const barColors = [S.gradViolet, S.gradMagenta, S.gradOrange, "#22c55e", "#0099ff"];
-                return (
-                  <div key={f.name}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                      <span style={{ fontSize: "13px", fontWeight: 500, color: S.ink, letterSpacing: "-0.13px", textTransform: "capitalize" }}>{f.name}</span>
-                      <span style={{ fontSize: "13px", color: S.inkMuted }}>{(f.weight * 100).toFixed(0)}% weight · <strong style={{ color: S.ink }}>{(f.value * 100).toFixed(0)}</strong></span>
-                    </div>
-                    <div style={{ background: S.surface2, borderRadius: "4px", height: "6px", overflow: "hidden" }}>
-                      <div style={{ width: `${f.value * 100}%`, height: "100%", background: barColors[i], borderRadius: "4px", transition: "width 0.6s ease" }} />
-                    </div>
+              {a.score.factors.map((f) => (
+                <div key={f.name}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 500, color: S.ink, letterSpacing: "-0.13px", textTransform: "capitalize" }}>{f.name}</span>
+                    <span style={{ fontSize: "13px", color: S.inkMuted }}>{(f.weight * 100).toFixed(0)}% weight · <strong style={{ color: S.ink }}>{(f.value * 100).toFixed(0)}</strong></span>
                   </div>
-                );
-              })}
+                  <div style={{ background: S.surface2, borderRadius: "4px", height: "6px", overflow: "hidden" }}>
+                    <div style={{ width: `${f.value * 100}%`, height: "100%", background: S.inkMuted, borderRadius: "4px", transition: "width 0.6s ease" }} />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div style={{ marginTop: "24px", padding: "16px", background: S.surface2, borderRadius: "10px" }}>
@@ -226,8 +211,8 @@ export default async function ProcessDetailPage({ params }: Props) {
                   flexShrink: 0,
                   width: "24px",
                   height: "24px",
-                  background: i === 0 ? `linear-gradient(135deg, ${gradA}, ${gradB})` : S.surface2,
-                  color: S.ink,
+                  background: i === 0 ? S.ink : S.surface2,
+                  color: i === 0 ? S.canvas : S.inkMuted,
                   borderRadius: "50%",
                   display: "flex",
                   alignItems: "center",
